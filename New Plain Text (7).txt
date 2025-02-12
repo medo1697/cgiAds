@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء إعلانات CGI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            direction: rtl;
+        }
+        header {
+            background-color: #007BFF;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .templates {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .template-card {
+            width: calc(33.33% - 20px);
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .template-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        .upload-section {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .drag-area {
+            border: 2px dashed #ccc;
+            padding: 50px;
+            margin: 20px auto;
+            width: 80%;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+        .drag-area:hover {
+            border-color: #007BFF;
+        }
+        .preview {
+            margin-top: 20px;
+            text-align: center;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        .customization {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .customization input {
+            margin: 10px;
+            padding: 5px;
+        }
+        .download-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .download-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>إنشاء إعلانات CGI</h1>
+        <p>قم بإنشاء إعلانات مذهلة باستخدام قوالب جاهزة وإضافة منتجك بسهولة.</p>
+    </header>
+
+    <div class="container">
+        <h2>اختر القالب المناسب:</h2>
+        <div class="templates">
+            <!-- قالب عرض منتج -->
+            <div class="template-card" data-template="productTemplate">
+                <img src="https://img.freepik.com/free-psd/product-mockup-template_125540-68.jpg?w=2000" alt="Product Template">
+                <h3>قالب عرض منتج</h3>
+            </div>
+            <!-- قالب ترويجي -->
+            <div class="template-card" data-template="promoTemplate">
+                <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80" alt="Promo Template">
+                <h3>قالب ترويجي</h3>
+            </div>
+            <!-- قالب ثلاثي الأبعاد -->
+            <div class="template-card" data-template="3dTemplate">
+                <img src="https://assets.placeit.net/assets/templates/previewer/psd/psd_product_mockup_template_125540-68.jpg" alt="3D Template">
+                <h3>قالب ثلاثي الأبعاد</h3>
+            </div>
+            <!-- قالب تسويقي -->
+            <div class="template-card" data-template="marketingTemplate">
+                <img src="https://img.freepik.com/free-psd/social-media-post-template-design_23-2148907379.jpg?w=2000" alt="Marketing Template">
+                <h3>قالب تسويقي</h3>
+            </div>
+            <!-- قالب عصري -->
+            <div class="template-card" data-template="modernTemplate">
+                <img src="https://images.unsplash.com/photo-1551434678-e076cbb85ca1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80" alt="Modern Template">
+                <h3>قالب عصري</h3>
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <h2>قم بإفلات صورة المنتج الخاص بك:</h2>
+            <div class="drag-area" id="dragArea">
+                <p>اسحب وافلِّت ملف الصورة هنا</p>
+                <input type="file" id="fileInput" hidden>
+            </div>
+        </div>
+
+        <div class="customization">
+            <h2>قم بتخصيص الإعلان:</h2>
+            <label for="textCustom">إضافة نص:</label>
+            <input type="text" id="textCustom" placeholder="اكتب النص هنا">
+
+            <label for="colorCustom">تغيير لون الخلفية:</label>
+            <input type="color" id="colorCustom" value="#ffffff">
+        </div>
+
+        <div class="preview">
+            <h2>معاينة الإعلان:</h2>
+            <img id="previewImage" src="" alt="Preview" style="display: none;">
+        </div>
+
+        <button class="download-btn" id="downloadBtn" style="display: none;">تنزيل الإعلان</button>
+    </div>
+
+    <script>
+        // تعريف القوالب
+        const templates = {
+            productTemplate: 'https://img.freepik.com/free-psd/product-mockup-template_125540-68.jpg?w=2000',
+            promoTemplate: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
+            3dTemplate: 'https://assets.placeit.net/assets/templates/previewer/psd/psd_product_mockup_template_125540-68.jpg',
+            marketingTemplate: 'https://img.freepik.com/free-psd/social-media-post-template-design_23-2148907379.jpg?w=2000',
+            modernTemplate: 'https://images.unsplash.com/photo-1551434678-e076cbb85ca1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80'
+        };
+
+        // اختيار القالب
+        document.querySelectorAll('.template-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const selectedTemplate = card.getAttribute('data-template');
+                document.querySelector('#previewImage').src = templates[selectedTemplate];
+                document.querySelector('#previewImage').style.display = 'block';
+            });
+        });
+
+        // تحميل الصورة عن طريق السحب والإفلات
+        const dragArea = document.getElementById('dragArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewImage = document.getElementById('previewImage');
+
+        dragArea.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            dragArea.style.borderColor = '#007BFF';
+        });
+
+        dragArea.addEventListener('dragleave', () => {
+            dragArea.style.borderColor = '#ccc';
+        });
+
+        dragArea.addEventListener('drop', (event) => {
+            event.preventDefault();
+            dragArea.style.borderColor = '#ccc';
+
+            const file = event.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    previewImage.src = reader.result;
+                    previewImage.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('يرجى اختيار ملف صورة صالح.');
+            }
+        });
+
+        // تحريك العنصر عند النقر على زر اختيار الملف
+        dragArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    previewImage.src = reader.result;
+                    previewImage.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('يرجى اختيار ملف صورة صالح.');
+            }
+        });
+
+        // تخصيص النصوص والألوان
+        const textCustom = document.getElementById('textCustom');
+        const colorCustom = document.getElementById('colorCustom');
+
+        textCustom.addEventListener('input', () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = previewImage.width;
+            canvas.height = previewImage.height;
+
+            const img = new Image();
+            img.src = previewImage.src;
+            img.onload = () => {
+                ctx.drawImage(img, 0, 0);
+                ctx.fillStyle = 'black';
+                ctx.font = '30px Arial';
+                ctx.fillText(textCustom.value, 50, 50);
+
+                previewImage.src = canvas.toDataURL();
+            };
+        });
+
+        colorCustom.addEventListener('input', () => {
+            previewImage.style.backgroundColor = colorCustom.value;
+        });
+
+        // تنزيل الإعلان النهائي
+        const downloadBtn = document.getElementById('downloadBtn');
+        downloadBtn.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = 'advertisement.png';
+            link.href = previewImage.src;
+            link.click();
+        });
+
+        // عرض زر التنزيل عند استعداد الإعلان
+        previewImage.addEventListener('load', () => {
+            downloadBtn.style.display = 'block';
+        });
+    </script>
+
+</body>
+</html>
